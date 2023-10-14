@@ -8,3 +8,7 @@ pip install pytube
 ```
 
 Or Download EXE file
+
+## Usage 
+  Copy Youtube links in to the Videos.txt file.
+  Or choose to download one Video and past the link it to the program or CMD.
