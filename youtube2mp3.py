@@ -1,30 +1,56 @@
+import os
 from pytube import YouTube
+from moviepy.editor import VideoFileClip
+import eyed3
 
-print("Download one or many")
-print("1: One")
-print("2: From text file")
-chose = input()
+# Function to download a YouTube video as an MP4 file
+def download_youtube_video(url, output_dir):
+    yt = YouTube(url)
+    stream = yt.streams.filter(file_extension='mp4', res="720p").first()
+    stream.download(output_path=output_dir)
+    return os.path.join(output_dir, f"{yt.title}.mp4")
 
-def Download(url):
-   try:
-       video = YouTube(url)
-       stream = video.streams.filter(only_audio=True).first()
-       stream.download(filename=f"{video.title}.mp3")
-       print("The video " + video.title + " downloaded in MP3")
-   except KeyError:
-     print("Unable to fetch video information. Please check the video URL or your network connection.")
+# Function to convert MP4 to MP3
+def convert_mp4_to_mp3(mp4_file, mp3_file):
+    video = VideoFileClip(mp4_file)
+    video.audio.write_audiofile(mp3_file)
 
-if(chose == '1'):
-    print("Input Yt link")
-    url = input()
-    Download(url)
-    
-if(chose == '2'):
- with open('videos.txt', 'r') as file:
+# Function to process YouTube URLs from the terminal input
+def process_youtube_urls_from_terminal(output_dir):
     urls = []
-    for url in file:
-        url = url.strip()
+    while True:
+        print("Enter a YouTube URL")
+        url = input()
         urls.append(url)
-    for url in urls:
-        Download(url)
+        break
 
+    for url in urls:
+        mp4_file = download_youtube_video(url, output_dir)
+        if mp4_file:
+            mp3_file = os.path.splitext(mp4_file)[0] + ".mp3"
+            convert_mp4_to_mp3(mp4_file, mp3_file)
+            print(f"Downloaded {mp4_file}, converted to {mp3_file}, and added metadata.")
+
+# Function to process YouTube URLs from a text file
+def process_youtube_urls_from_file(file_path, output_dir):
+    with open(file_path, 'r') as file:
+        urls = file.read().splitlines()
+
+    for url in urls:
+        mp4_file = download_youtube_video(url, output_dir)
+        if mp4_file:
+            mp3_file = os.path.splitext(mp4_file)[0] + ".mp3"
+            convert_mp4_to_mp3(mp4_file, mp3_file)
+            print(f"Downloaded {mp4_file}, converted to {mp3_file}, and added metadata.")
+
+if __name__ == "__main__":
+    choice = input("Choose input method ('file' or 'terminal'): ").lower()
+    output_dir = "output"
+
+    if choice == 'file':
+        input_file = "videos.txt"
+        process_youtube_urls_from_file(input_file, output_dir)
+    elif choice == 'terminal':
+        process_youtube_urls_from_terminal(output_dir)
+    else:
+        print("Invalid input method. Please choose 'file' or 'terminal'.")
