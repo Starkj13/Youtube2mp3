@@ -12,7 +12,7 @@ os.makedirs(output_dir_mp3, exist_ok=True)
 # Function to download a YouTube video as an MP4 file
 def download_youtube_video(url, output_dir):
     yt = YouTube(url)
-    stream = yt.streams.filter(file_extension='mp4').first()
+    stream = yt.streams.get_highest_resolution()
     stream.download(output_path=output_dir)
     return os.path.join(output_dir, f"{yt.title}.mp4")
 
