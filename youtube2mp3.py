@@ -1,7 +1,6 @@
 import os
 from pytube import YouTube
 from moviepy.editor import VideoFileClip
-import eyed3
 
 # constanst
 output_dir = "mp4_output" 
@@ -13,8 +12,11 @@ os.makedirs(output_dir_mp3, exist_ok=True)
 def download_youtube_video(url, output_dir):
     yt = YouTube(url)
     stream = yt.streams.get_highest_resolution()
-    stream.download(output_path=output_dir)
-    return os.path.join(output_dir, f"{yt.title}.mp4")
+    video_title = yt.title
+    video_title = ''.join(char for char in video_title if char.isalnum() or char.isspace())
+    stream.download(output_path=output_dir, filename=f"{video_title}.mp4")
+    video_path = os.path.join(output_dir, f"{video_title}.mp4")
+    return video_path
 
 # Function to convert MP4 to MP3
 def convert_mp4_to_mp3(mp4_file, mp3_file):
